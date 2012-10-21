@@ -5,6 +5,7 @@
 
 var express = require('express')
   , routes = require('./routes')
+  , email = require('./email')
   , user = require('./routes/user')
   , rss = require('./routes/rss')
   , http = require('http')
@@ -38,4 +39,5 @@ http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 
+// Periodic subscription check
 setInterval(rss.periodicCheck, 1000 * 10);
