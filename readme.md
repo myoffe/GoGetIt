@@ -1,0 +1,1 @@
+The purpose of this tool is to be notified when your TV shows, music and movies are released.
