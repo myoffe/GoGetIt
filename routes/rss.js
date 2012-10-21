@@ -37,21 +37,38 @@ var getFeedItems = function(next) {
 var getItemUrlIfFound = function(search_keyword, next) {
 	console.log('inside getItemUrlIfFound');
 	console.log('search keyword: ' + search_keyword);
+
 	getFeedItems(function(items) {
-		items.forEach(function(item) {
+		for (var i=0; i<items.length; i++) {
+			item = items[i];
 			title = item.find('title').text.toLowerCase();
 			guid = item.find('guid').text;
 
 			if (title.indexOf(search_keyword) != -1) {
 				console.log('found search keyword');
 				next(guid);
+				break;
 			}
-		});
+		}
 
-		// Didn't find anything
-		next();
+		if (i == items.length) {
+			// Didn't find anything
+			next();
+		}
 	});
 
+};
+
+exports.periodicCheck = function() {
+	console.log('in periodicCheck');
+	var kw = 'bdrip';	// for test
+	getItemUrlIfFound(kw, function(itemUrl) {
+		if (itemUrl) {
+			console.log('Found search keyword in rss feed: ' + itemUrl);
+		} else {
+			console.log("Did not find keyword");
+		}
+	});
 };
 
 exports.test = function(req, res) {
@@ -64,6 +81,8 @@ exports.test = function(req, res) {
 };  
 
 exports.check = function(req, res) {
+	console.log('in rss.check');
+
 	var keyword = req.query.keyword;
 	console.log('search keyword: ' + keyword);
 	getItemUrlIfFound(keyword, function(itemUrl) {
