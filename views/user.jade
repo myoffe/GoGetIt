@@ -1,0 +1,12 @@
+#container
+    #display
+        #user-list
+        h1 User List
+        -for (var id in userIds)
+            a(href='/users/#{id}')
+
+        #new-user-form
+        form(method='post')
+            div
+                input(type='text', name='email')
+                input(type='submit', value='Register')

@@ -33,6 +33,7 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 app.get('/check', rss.check);
 app.get('/test', rss.test);
+app.get('/test/email', email.sendMail);
 
 
 http.createServer(app).listen(app.get('port'), function(){
@@ -40,4 +41,4 @@ http.createServer(app).listen(app.get('port'), function(){
 });
 
 // Periodic subscription check
-setInterval(rss.periodicCheck, 1000 * 10);
+//setInterval(rss.periodicCheck, 1000 * 10);

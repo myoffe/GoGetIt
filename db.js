@@ -2,52 +2,81 @@
 User object example:
 {
 	"email": "myoffe@gmail.com",
-	"subscriptions": [{"url": "rss.com/feed", "search_keywords": ["dexter", "game of thrones"]}],
+	"subscriptions": [ {feed: FEED_ID, filter = 'dexter'}, ...],
 	"notified_items": [ "rss.com/feed/123", "rss.com/feed/552" ]
+}
+
+Feed {
+	'website': 'The Pirate Bay'
+	'category': 'Highres - TV shows',
+	'url': 'http://rss.thepiratebay.se/208'
 }
 */
 
 var mongo = require('mongodb'),
   Server = mongo.Server,
-  Db = mongo.Db,
-  db;
+  Db = mongo.Db;
 
-exports.connect(next) = function() {
 
+var connect = function(callback) {
 	var server = new Server('localhost', 27017, {auto_reconnect: true});
-	db = new Db('gogetit', server);
+	var db = new Db('gogetit', server);
 
 	db.open(function(err, db) {
-	  if(!err) {
-	    console.log("We are connected");
-	  } else {
-	  	next();
-	  }
+		if (!err) {
+			console.log('Database connected');
+			if (callback) {
+				callback(null, db);	
+			}
+		} else if (callback) {
+			callback(new Error('Failed connecting DB'));
+		}	  
 	});
 };
 
-exports.getSubscriptions = function(email) {
-	subs = db.users.find({"email":email}, "subscriptions" : 1);
+exports.connect = connect;
+
+
+exports.getSubscriptions = function(email, callback) {
+	connect(function(err, db) {
+		subs = db.users.find({"email":email}, {"subscriptions" : 1}, callback)
+	});
 };
 
-exports.addSubscription = function(email, feed_url, search_keyword) {
-	/* TODO
-		1. find user by email, raise exception if doesn't
-		2. find feed URL if already exists, create if doesn't
-		3. find search_keyword if already exist, add if doesn't
-	*/
+exports.addSubscription = function(email, feed, search_keyword, callback) {
+	// TODO check for DB errors
+	connect(function(db) {
+		db.users.count({'email': email, 'feed': feed._id, 'filter': search_keyword}, {}, function(err, count) {
+			if (count != 0) {
+				console.info('Subscription already exists');
+			}
 
-	subs = getSubscriptions(email);
-
-	keywords = []
-	keywords.append(search_keyword)
-	subs.append({"url": feed_url, "search_keywords": keywords});
-	subs.save()
+			db.users.findOne({'email': email}, {}, function(err, user) {
+				user.subscriptions.push({'feed': feed._id, 'filter': search_keyword});
+				db.users.insert(user, {}, callback);
+			})
+			
+		});
+	});
+	
 };
 
-exports.addNotifiedItem = function(email, item_id) {
-	notified_items = db.users.find({"email":email, "notified_items": 1});
-
-	notified_items.append(item_id);
-	notified_items.save();
+exports.addNotifiedItem = function(email, item_id, callback) {
+	connect(function(err, db) {
+		user = db.users.findOne({"email":email}, {"notified_items": 1}, function(err, user) {
+			user.push(item_id);
+			db.users.insert(user, {}, callback);			
+		});
+	});
 };
+
+exports.addFeed = function(website, url) {
+	connect();
+	db.feeds.insert({'website': website, 'url': url})
+}
+
+exports.getFeeds = function() {
+	connect();
+	return db.feeds.find();
+}
+

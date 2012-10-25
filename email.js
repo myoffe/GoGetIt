@@ -5,7 +5,7 @@ var smtpTransport = nodemailer.createTransport("SMTP", {
     service: "Gmail",
     auth: {
         user: "myoffe@gmail.com",
-        pass: new Buffer("ZW50ZXJ0aGV6b25l", 'base64').toString('ascii');
+        pass: new Buffer("ZW50ZXJ0aGV6b25l", 'base64').toString('ascii')
     }
 });
 
@@ -19,6 +19,7 @@ exports.sendMail = function() {
         html: "<b>Your favorite TV show is released, go get it!</b>" // html body
     }
 
+    console.log('Sending email...');
     // send mail with defined transport object
     smtpTransport.sendMail(mailOptions, function(error, response){
         if(error){
