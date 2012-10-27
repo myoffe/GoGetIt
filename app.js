@@ -30,7 +30,10 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
+
 app.get('/users', user.list);
+app.post('/users', user.create);
+
 app.get('/check', rss.check);
 app.get('/test', rss.test);
 app.get('/test/email', email.sendMail);

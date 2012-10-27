@@ -18,7 +18,7 @@ var mongo = require('mongodb'),
   Db = mongo.Db;
 
 
-var connect = function(callback) {
+exports.connect = function(callback) {
 	var server = new Server('localhost', 27017, {auto_reconnect: true});
 	var db = new Db('gogetit', server);
 
@@ -34,7 +34,17 @@ var connect = function(callback) {
 	});
 };
 
-exports.connect = connect;
+exports.users = function(callback) {
+	exports.connect(function(err, db) {
+		if (err) return callback(err);
+
+		db.collection('users', function(err, users) {
+			if (err) return callback(err);
+
+			callback(null, users);
+		});
+	})
+}
 
 
 exports.getSubscriptions = function(email, callback) {

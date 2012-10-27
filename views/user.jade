@@ -1,11 +1,14 @@
 #container
     #display
         #user-list
-        h1 User List
-        -for (var id in userIds)
-            a(href='/users/#{id}')
+        h1 Users
+        ul
+        - for user in users
+            li
+                a(href='/users/#{user.email}') #{user.email}
 
         #new-user-form
+        h1 Register
         form(method='post')
             div
                 input(type='text', name='email')
