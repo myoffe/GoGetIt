@@ -15,13 +15,23 @@ Feed {
 
 var mongo = require('mongodb'),
   Server = mongo.Server,
-  Db = mongo.Db;
+  Db = mongo.Db,
+  Q = require('q');
 
 
-exports.connect = function(callback) {
+exports.connect = function() {
 	var server = new Server('localhost', 27017, {auto_reconnect: true});
 	var db = new Db('gogetit', server);
 
+	return Q.ncall(db.open, db)
+		.then(function(db) {
+			console.log('Database connected');
+			return db;
+		}, function(err) {
+			console.error('Failed connecting to DB');
+			return err;
+		});
+/*
 	db.open(function(err, db) {
 		if (!err) {
 			console.log('Database connected');
@@ -32,8 +42,18 @@ exports.connect = function(callback) {
 			callback(new Error('Failed connecting DB'));
 		}	  
 	});
+*/
 };
 
+exports.users = function() {
+	return exports.connect()
+		.then(function(db) {
+			console.log('connect promise fufilled');
+			return Q.ncall(db.collection, db, 'users');
+		});
+}
+
+/*
 exports.users = function(callback) {
 	exports.connect(function(err, db) {
 		if (err) return callback(err);
@@ -45,7 +65,7 @@ exports.users = function(callback) {
 		});
 	})
 }
-
+*/
 
 exports.getSubscriptions = function(email, callback) {
 	connect(function(err, db) {

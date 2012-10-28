@@ -32,6 +32,7 @@ app.configure('development', function(){
 app.get('/', routes.index);
 
 app.get('/users', user.list);
+app.get('/users2', user.list2);
 app.post('/users', user.create);
 
 app.get('/check', rss.check);
